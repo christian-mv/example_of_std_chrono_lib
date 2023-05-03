@@ -14,7 +14,7 @@ void formatingInUtcAndDifferentTimeZone(long long msSinceUtcEpoch) {
     using namespace std::chrono;
 //    using namespace std::literals;
 
-    std::cout << "------ Demo: convertingToDiferentTimezone ----- " << std::endl;
+    std::cout << "------ Demo: formatingInUtcAndDifferentTimeZone ----- " << std::endl;
 
     auto timePoint = system_clock::time_point{ milliseconds{ msSinceUtcEpoch } };
     auto as_utc = zoned_time{ locate_zone("UTC"), timePoint };
@@ -68,7 +68,7 @@ bool is_valid_iana_id(const std::string& iana_id) {
 /// Extracts information from date and time into a different time zone
 void extractingDateAndTimeInfoToDifferentTimeZone(long long msSinceUtcEpoch, const std::string& ianaId) {
     using namespace std::chrono;
-    std::cout << "------ Demo: createTimePointsWithDateTimeParts ----- " << std::endl;
+    std::cout << "------ Demo: extractingDateAndTimeInfoToDifferentTimeZone ----- " << std::endl;
 
     // check tha the timezone id is valid
     if(!is_valid_iana_id(ianaId)){
@@ -137,6 +137,5 @@ int main(){
     createTimePointsWithDateTimeParts(2023, 10, 1, 2, 30, 0, 10); // demo 4
     return 0;
 }
-
 
 ```
