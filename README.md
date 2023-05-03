@@ -9,7 +9,7 @@ This is just a quick example on how to use the std::chrono library in C++20.
 #include <format>
 
 
-/// shows how to print timestamp in different time zones.
+/// shows how to print timestamp in UTC and in a specified time zone.
 void formatingInUtcAndDifferentTimeZone(long long msSinceUtcEpoch) {
     using namespace std::chrono;
 //    using namespace std::literals;
@@ -103,7 +103,7 @@ void extractingDateAndTimeInfoToDifferentTimeZone(long long msSinceUtcEpoch, con
 
 }
 
-/// Shows how to create a time_point.
+/// Shows how to create a time_point manually.
 void createTimePointsWithDateTimeParts(int w_year, int w_month, int w_day,
                                        int w_hours, int w_minutes, int w_seconds, int w_milliseconds){
 
@@ -126,7 +126,7 @@ void createTimePointsWithDateTimeParts(int w_year, int w_month, int w_day,
 }
 
 int main(){
-    long long msSinceUtcEpoch = 1651406100010; // timestamp given in milliseconds since epoch in UTC
+    long long msSinceUtcEpoch = 1651406100010; // timestamp given in UTC milliseconds since epoch
 
     formatingInUtcAndDifferentTimeZone(msSinceUtcEpoch); // demo 1
 
@@ -135,6 +135,7 @@ int main(){
     extractingDateAndTimeInfoToDifferentTimeZone(msSinceUtcEpoch, "Australia/Perth"); // demo 3
 
     createTimePointsWithDateTimeParts(2023, 10, 1, 2, 30, 0, 10); // demo 4
+    
     return 0;
 }
 
