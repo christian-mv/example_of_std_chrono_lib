@@ -3,13 +3,14 @@ This is just a quick example on how to use the std::chrono library in C++20.
 
 
 ```cpp
-
+// compile using: C++20 or later
 #include <iostream>
 #include <chrono>
 #include <format>
 
+
 /// shows how to print timestamp in different time zones.
-void convertingToDiferentTimezone(long long msSinceUtcEpoch) {
+void formatingInUtcAndDifferentTimeZone(long long msSinceUtcEpoch) {
     using namespace std::chrono;
 //    using namespace std::literals;
 
@@ -26,6 +27,7 @@ void convertingToDiferentTimezone(long long msSinceUtcEpoch) {
     std::cout << std::endl;
 }
 
+/// Extracts information from date and time as UTC
 void extractingDateAndTimeInfo(long long msSinceUtcEpoch){
     using namespace std::chrono;
 //    using namespace std::literals;
@@ -51,30 +53,8 @@ void extractingDateAndTimeInfo(long long msSinceUtcEpoch){
 
 }
 
-
-void createTimePointsWithDateTimeParts(int w_year, int w_month, int w_day,
-                                       int w_hours, int w_minutes, int w_seconds, int w_milliseconds){
-
-    //https://stackoverflow.com/questions/31284994/most-elegant-way-to-combine-chronotime-point-from-hours-minutes-seconds-etc
-
-    using namespace std::chrono;
-
-    std::cout << "------ Demo: createTimePointsWithDateTimeParts ----- " << std::endl;
-
-    system_clock::time_point dateTime =
-        sys_days(year(w_year)
-                       /month(w_month)
-                       /day(w_day))
-        + hours(w_hours)
-        + minutes(w_minutes)
-        + seconds(w_seconds)
-        + milliseconds(w_milliseconds);
-
-    std::cout << dateTime << '\n'<<std::endl;
-
-
-}
-
+/// @returns true if a iana id is valid or not.
+/// @note Im sorry if this is not the best approach.
 bool is_valid_iana_id(const std::string& iana_id) {
     try {
         auto zone = std::chrono::locate_zone(iana_id);
@@ -85,6 +65,7 @@ bool is_valid_iana_id(const std::string& iana_id) {
     }
 }
 
+/// Extracts information from date and time into a different time zone
 void extractingDateAndTimeInfoToDifferentTimeZone(long long msSinceUtcEpoch, const std::string& ianaId) {
     using namespace std::chrono;
     std::cout << "------ Demo: createTimePointsWithDateTimeParts ----- " << std::endl;
@@ -94,7 +75,6 @@ void extractingDateAndTimeInfoToDifferentTimeZone(long long msSinceUtcEpoch, con
         std::cout<<"Invalid iana id: "<<ianaId<<std::endl;
         return;
     }
-
 
     auto zone_ptr = std::chrono::locate_zone(ianaId);
     if (!zone_ptr) {
@@ -123,11 +103,32 @@ void extractingDateAndTimeInfoToDifferentTimeZone(long long msSinceUtcEpoch, con
 
 }
 
+/// Shows how to create a time_point.
+void createTimePointsWithDateTimeParts(int w_year, int w_month, int w_day,
+                                       int w_hours, int w_minutes, int w_seconds, int w_milliseconds){
+
+    //https://stackoverflow.com/questions/31284994/most-elegant-way-to-combine-chronotime-point-from-hours-minutes-seconds-etc
+
+    using namespace std::chrono;
+
+    std::cout << "------ Demo: createTimePointsWithDateTimeParts ----- " << std::endl;
+
+    system_clock::time_point dateTime =
+        sys_days(year(w_year)
+                       /month(w_month)
+                       /day(w_day))
+        + hours(w_hours)
+        + minutes(w_minutes)
+        + seconds(w_seconds)
+        + milliseconds(w_milliseconds);
+
+    std::cout << dateTime << '\n'<<std::endl;
+}
 
 int main(){
     long long msSinceUtcEpoch = 1651406100010; // timestamp given in milliseconds since epoch in UTC
 
-    convertingToDiferentTimezone(msSinceUtcEpoch); // demo 1
+    formatingInUtcAndDifferentTimeZone(msSinceUtcEpoch); // demo 1
 
     extractingDateAndTimeInfo(msSinceUtcEpoch); // demo 2
 
