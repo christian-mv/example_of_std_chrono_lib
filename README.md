@@ -2,7 +2,7 @@
 This is just a quick example on how to use the std::chrono library in C++20. 
 
 
-<pre><code>```cpp
+```cpp
 
 #include <iostream>
 #include <chrono>
