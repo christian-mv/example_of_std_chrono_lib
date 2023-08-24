@@ -78,7 +78,7 @@ void extractingDateAndTimeInfoToDifferentTimeZone(long long msSinceUtcEpoch, con
 
     auto zone_ptr = std::chrono::locate_zone(ianaId);
     if (!zone_ptr) {
-        std::cout << ianaId << " is a valid IANA time zone ID.\n";
+         std::cout<<"Impossible to extract time zone: "<<ianaId<<std::endl;
         return;
     }
 
@@ -145,6 +145,108 @@ std::chrono::system_clock::time_point fromMillisencondsSinceEpochToTimePoint(con
     return utcTimePoint;
 }
 
+void printIanaDatabase(){
+//    long long msSinceUtcEpoch = 1696127400010LL;
+//    std::string ianaId = "Australia/Perth";
+
+//    auto utcTimePoint = system_clock::time_point{ std::chrono::milliseconds{ msSinceUtcEpoch } };
+//    auto myZonedTime = zoned_time{ std::chrono::locate_zone(ianaId), utcTimePoint }.get_local_time();
+
+    std::cout << "------ Demo: printIanaDatabase ----- " << std::endl;
+
+    const auto& timeZoneDatabase = std::chrono::get_tzdb(); // initialize the time zone database
+
+    std::cout<<"IANA database version: "<<timeZoneDatabase.version<<std::endl;
+    std::cout<<"current zone: "<<timeZoneDatabase.current_zone()->name()<<std::endl;
+    std::cout<<"NAME\t --> TARGET: "<<std::endl;
+    for(const auto &l: timeZoneDatabase.links){
+        std::cout<<l.name()<<"\t --> "<<l.target()<<std::endl;
+    }
+}
+
+/// @brief Obtains information about this time zone at the time point tp
+/// @note this method assumes that ianaId is a valid id, otherwise undefined behaviour
+void printTimeZoneAtTimePoint(const std::chrono::system_clock::time_point &utc_tp, const std::string &ianaId){
+
+    // check tha the timezone id is valid
+    std::cout << "------ Demo: printTimeZoneAtTimePoint ----- " << std::endl;
+
+    auto zone_ptr = std::chrono::locate_zone(ianaId);
+
+    auto info = zone_ptr->get_info(utc_tp); // check: https://learn.microsoft.com/en-us/cpp/standard-library/sys-info-struct?view=msvc-170
+
+
+    // The abbreviation used for the associated time_zone and time_point.
+    std::cout<<"info.abbrev: "<<info.abbrev<<std::endl;
+
+    // Provides the range over the associated time zone, [begin, end), that the offset and abbrev apply to.
+    std::cout<<"info.begin: "<<info.begin<<" UTC"<<std::endl;
+    std::cout<<"info.end: "<<info.end<<" UTC"<<std::endl; // UTC
+
+    // The Universal Time Coordinated (UTC) offset in effect for the associated time_zone and time_point.
+    std::cout<<"info.offset: "<<info.offset<<std::endl;
+
+    // Indicates whether the sys_info is on daylight savings time, and if so,
+    // suggests the offset this time zone might use if it weren't on daylight savings time.
+    std::cout<<"info.save: "<<info.save<<std::endl;
+
+    std::cout<<"is DST: "<<(info.save.count()!=0?"true":"false")<<std::endl;
+
+}
+
+/// Returns the utc time-points when there is a DST transition
+/// @note make sure that utc_tp1<=utc_tp2
+std::vector<std::chrono::system_clock::time_point> getDstTransitions(const std::chrono::system_clock::time_point &utc_tp1,
+                                                                     const std::chrono::system_clock::time_point &utc_tp2,
+                                                                     const std::string &ianaId)
+{
+
+    std::cout << "------ Demo: getDstTransitions ----- " << std::endl;
+
+    std::vector<std::chrono::system_clock::time_point> transitionsVect;
+
+    // check tha the timezone id is valid
+    if(!is_valid_iana_id(ianaId)){
+        std::cout<<"Invalid iana id: "<<ianaId<<std::endl;
+        return transitionsVect;
+    }
+
+    // check that range is ok
+    if(utc_tp1>=utc_tp2){
+        std::cout<<"Invalid range"<<std::endl;
+        return transitionsVect;
+    }
+
+     auto zone_ptr = std::chrono::locate_zone(ianaId);
+
+
+    auto initialTp = std::chrono::system_clock::time_point{ zone_ptr->get_info(utc_tp1).end };
+
+
+    if(initialTp>utc_tp2)
+        return transitionsVect;
+
+    transitionsVect.push_back(initialTp);
+
+    while(true){
+        const auto &currentEnd = transitionsVect[transitionsVect.size()-1];
+        const auto &newEnd = std::chrono::system_clock::time_point{ zone_ptr->get_info(currentEnd).end };
+        if(newEnd>=utc_tp2)
+            break;
+        transitionsVect.push_back( newEnd );
+    }
+
+    // print
+    std::cout<<"DST transitions between "<<utc_tp1<<" UTC and "<<utc_tp2<<" UTC"<<std::endl;
+    for(const auto& tp: transitionsVect){
+        auto zonedTime = std::chrono::zoned_time{ std::chrono::locate_zone(ianaId), tp }.get_local_time();
+        std::cout<<tp<<" UTC\t->\t"<<zonedTime<<" "+ianaId<<std::endl;
+    }
+
+    return transitionsVect;
+}
+
+
 int main(){
 
     auto timePoint = createTimePointsWithDateTimeParts(2023, 10, 1, 2, 30, 0, 10);
@@ -157,7 +259,16 @@ int main(){
 
     extractingDateAndTimeInfo(msSinceUtcEpoch);
 
-    extractingDateAndTimeInfoToDifferentTimeZone(msSinceUtcEpoch, "Australia/Perth");
+    extractingDateAndTimeInfoToDifferentTimeZone(msSinceUtcEpoch, "Australia/Melbourne");
+
+//    printIanaDatabase(); // print the whole database
+
+    printTimeZoneAtTimePoint(timePoint, "Australia/Melbourne");
+
+    getDstTransitions(createTimePointsWithDateTimeParts(2022, 10, 1, 2, 30, 0, 0),
+                      createTimePointsWithDateTimeParts(2023, 10, 1, 2, 30, 0, 0),
+                      "Australia/Melbourne");
+
     return 0;
 }
 
