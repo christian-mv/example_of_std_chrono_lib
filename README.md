@@ -78,7 +78,7 @@ void extractingDateAndTimeInfoToDifferentTimeZone(long long msSinceUtcEpoch, con
 
     auto zone_ptr = std::chrono::locate_zone(ianaId);
     if (!zone_ptr) {
-         std::cout<<"Impossible to extract time zone: "<<ianaId<<std::endl;
+        std::cout<<"Impossible to extract time zone: "<<ianaId<<std::endl;
         return;
     }
 
@@ -105,7 +105,7 @@ void extractingDateAndTimeInfoToDifferentTimeZone(long long msSinceUtcEpoch, con
 
 /// Shows how to create a time_point manually.
 std::chrono::system_clock::time_point createTimePointsWithDateTimeParts(int w_year, int w_month, int w_day,
-                                       int w_hours, int w_minutes, int w_seconds, int w_milliseconds){
+                                                                        int w_hours, int w_minutes, int w_seconds, int w_milliseconds){
 
     //https://stackoverflow.com/questions/31284994/most-elegant-way-to-combine-chronotime-point-from-hours-minutes-seconds-etc
 
@@ -146,11 +146,11 @@ std::chrono::system_clock::time_point fromMillisencondsSinceEpochToTimePoint(con
 }
 
 void printIanaDatabase(){
-//    long long msSinceUtcEpoch = 1696127400010LL;
-//    std::string ianaId = "Australia/Perth";
+    //    long long msSinceUtcEpoch = 1696127400010LL;
+    //    std::string ianaId = "Australia/Perth";
 
-//    auto utcTimePoint = system_clock::time_point{ std::chrono::milliseconds{ msSinceUtcEpoch } };
-//    auto myZonedTime = zoned_time{ std::chrono::locate_zone(ianaId), utcTimePoint }.get_local_time();
+    //    auto utcTimePoint = system_clock::time_point{ std::chrono::milliseconds{ msSinceUtcEpoch } };
+    //    auto myZonedTime = zoned_time{ std::chrono::locate_zone(ianaId), utcTimePoint }.get_local_time();
 
     std::cout << "------ Demo: printIanaDatabase ----- " << std::endl;
 
@@ -217,7 +217,7 @@ std::vector<std::chrono::system_clock::time_point> getDstTransitions(const std::
         return transitionsVect;
     }
 
-     auto zone_ptr = std::chrono::locate_zone(ianaId);
+    auto zone_ptr = std::chrono::locate_zone(ianaId);
 
 
     auto initialTp = std::chrono::system_clock::time_point{ zone_ptr->get_info(utc_tp1).end };
@@ -261,16 +261,15 @@ int main(){
 
     extractingDateAndTimeInfoToDifferentTimeZone(msSinceUtcEpoch, "Australia/Melbourne");
 
-//    printIanaDatabase(); // print the whole database
+    //    printIanaDatabase(); // print the whole database
 
     printTimeZoneAtTimePoint(timePoint, "Australia/Melbourne");
 
-    getDstTransitions(createTimePointsWithDateTimeParts(2022, 10, 1, 2, 30, 0, 0),
-                      createTimePointsWithDateTimeParts(2023, 10, 1, 2, 30, 0, 0),
-                      "Australia/Melbourne");
+    auto dstTranstionsVec = getDstTransitions(createTimePointsWithDateTimeParts(2022, 10, 1, 2, 30, 0, 0),
+                                              createTimePointsWithDateTimeParts(2023, 10, 1, 2, 30, 0, 0),
+                                              "Australia/Melbourne");
 
     return 0;
 }
-
 
 ```
