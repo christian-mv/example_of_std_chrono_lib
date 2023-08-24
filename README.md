@@ -214,6 +214,11 @@ std::vector<std::chrono::system_clock::time_point> getDstTransitions(const std::
 
     auto initialTp = std::chrono::system_clock::time_point{ zone_ptr->get_info(utc_tp1).end };
 
+    // initialTp.time_since_epoch().count()<0ll happens when no DST is available. e.g., UTC
+    if(initialTp.time_since_epoch().count()<0ll || initialTp>utc_tp2){
+        return transitionsVect;
+    }
+
     if(initialTp>utc_tp2)
         return transitionsVect;
 
@@ -262,6 +267,5 @@ int main(){
 
     return 0;
 }
-
 
 ```
