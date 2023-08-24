@@ -12,7 +12,7 @@ This is just a quick example on how to use the std::chrono library in C++20.
 /// shows how to print timestamp in UTC and in a specified time zone.
 void formatingInUtcAndDifferentTimeZone(long long msSinceUtcEpoch) {
     using namespace std::chrono;
-//    using namespace std::literals;
+    //    using namespace std::literals;
 
     std::cout << "------ Demo: formatingInUtcAndDifferentTimeZone ----- " << std::endl;
 
@@ -30,7 +30,7 @@ void formatingInUtcAndDifferentTimeZone(long long msSinceUtcEpoch) {
 /// Extracts information from date and time as UTC
 void extractingDateAndTimeInfo(long long msSinceUtcEpoch){
     using namespace std::chrono;
-//    using namespace std::literals;
+    //    using namespace std::literals;
 
     std::cout << "------ Demo: extractingDateAndTimeInfo  ----- " << std::endl;
 
@@ -104,7 +104,7 @@ void extractingDateAndTimeInfoToDifferentTimeZone(long long msSinceUtcEpoch, con
 }
 
 /// Shows how to create a time_point manually.
-void createTimePointsWithDateTimeParts(int w_year, int w_month, int w_day,
+std::chrono::system_clock::time_point createTimePointsWithDateTimeParts(int w_year, int w_month, int w_day,
                                        int w_hours, int w_minutes, int w_seconds, int w_milliseconds){
 
     //https://stackoverflow.com/questions/31284994/most-elegant-way-to-combine-chronotime-point-from-hours-minutes-seconds-etc
@@ -115,27 +115,49 @@ void createTimePointsWithDateTimeParts(int w_year, int w_month, int w_day,
 
     system_clock::time_point dateTime =
         sys_days(year(w_year)
-                       /month(w_month)
-                       /day(w_day))
+                 /month(w_month)
+                 /day(w_day))
         + hours(w_hours)
         + minutes(w_minutes)
         + seconds(w_seconds)
         + milliseconds(w_milliseconds);
 
     std::cout << dateTime << '\n'<<std::endl;
+
+    return dateTime;
+}
+
+long long fromTimePointToMsSinceEpoch(const std::chrono::system_clock::time_point &tp){
+
+    std::cout << "------ Demo: fromTimePointToMsSinceEpoch ----- " << std::endl;
+
+    auto msSinceEpoch = std::chrono::duration_cast<std::chrono::milliseconds>( tp.time_since_epoch() ).count();
+    std::cout << tp<<"\tepoch: "<<msSinceEpoch<< '\n'<<std::endl;
+
+    return msSinceEpoch;
+}
+
+
+std::chrono::system_clock::time_point fromMillisencondsSinceEpochToTimePoint(const long long msSinceEpoch){
+    std::cout << "------ Demo: fromMillisencondsSinceEpochToTimePoint ----- " << std::endl;
+    auto utcTimePoint = std::chrono::system_clock::time_point{ std::chrono::milliseconds{ msSinceEpoch } };
+    std::cout << utcTimePoint<<"\tepoch: "<<msSinceEpoch<< '\n'<<std::endl;
+    return utcTimePoint;
 }
 
 int main(){
-    long long msSinceUtcEpoch = 1651406100010; // timestamp given in UTC milliseconds since epoch
 
-    formatingInUtcAndDifferentTimeZone(msSinceUtcEpoch); // demo 1
+    auto timePoint = createTimePointsWithDateTimeParts(2023, 10, 1, 2, 30, 0, 10);
+    auto msSinceUtcEpoch = fromTimePointToMsSinceEpoch(timePoint); // timestamp given in UTC milliseconds since epoch
+    auto timePoint_clone = fromMillisencondsSinceEpochToTimePoint(msSinceUtcEpoch); // convert back
 
-    extractingDateAndTimeInfo(msSinceUtcEpoch); // demo 2
+    std::cout<<"timePoint_clone == timePoint: "<<(timePoint_clone==timePoint?"true\n":"false\n")<<std::endl;
 
-    extractingDateAndTimeInfoToDifferentTimeZone(msSinceUtcEpoch, "Australia/Perth"); // demo 3
+    formatingInUtcAndDifferentTimeZone(msSinceUtcEpoch);
 
-    createTimePointsWithDateTimeParts(2023, 10, 1, 2, 30, 0, 10); // demo 4
-    
+    extractingDateAndTimeInfo(msSinceUtcEpoch);
+
+    extractingDateAndTimeInfoToDifferentTimeZone(msSinceUtcEpoch, "Australia/Perth");
     return 0;
 }
 
