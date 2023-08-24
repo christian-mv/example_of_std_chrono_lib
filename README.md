@@ -127,17 +127,15 @@ std::chrono::system_clock::time_point createTimePointsWithDateTimeParts(int w_ye
     return dateTime;
 }
 
+/// extract the number of milliseconds since EPOCH from a given chrono time-point
 long long fromTimePointToMsSinceEpoch(const std::chrono::system_clock::time_point &tp){
-
     std::cout << "------ Demo: fromTimePointToMsSinceEpoch ----- " << std::endl;
-
     auto msSinceEpoch = std::chrono::duration_cast<std::chrono::milliseconds>( tp.time_since_epoch() ).count();
     std::cout << tp<<"\tepoch: "<<msSinceEpoch<< '\n'<<std::endl;
-
     return msSinceEpoch;
 }
 
-
+/// convert from UTC milliseconds since epoch to a chrono time-point
 std::chrono::system_clock::time_point fromMillisencondsSinceEpochToTimePoint(const long long msSinceEpoch){
     std::cout << "------ Demo: fromMillisencondsSinceEpochToTimePoint ----- " << std::endl;
     auto utcTimePoint = std::chrono::system_clock::time_point{ std::chrono::milliseconds{ msSinceEpoch } };
@@ -145,13 +143,8 @@ std::chrono::system_clock::time_point fromMillisencondsSinceEpochToTimePoint(con
     return utcTimePoint;
 }
 
+/// Print the whole IANA database
 void printIanaDatabase(){
-    //    long long msSinceUtcEpoch = 1696127400010LL;
-    //    std::string ianaId = "Australia/Perth";
-
-    //    auto utcTimePoint = system_clock::time_point{ std::chrono::milliseconds{ msSinceUtcEpoch } };
-    //    auto myZonedTime = zoned_time{ std::chrono::locate_zone(ianaId), utcTimePoint }.get_local_time();
-
     std::cout << "------ Demo: printIanaDatabase ----- " << std::endl;
 
     const auto& timeZoneDatabase = std::chrono::get_tzdb(); // initialize the time zone database
@@ -200,7 +193,6 @@ std::vector<std::chrono::system_clock::time_point> getDstTransitions(const std::
                                                                      const std::chrono::system_clock::time_point &utc_tp2,
                                                                      const std::string &ianaId)
 {
-
     std::cout << "------ Demo: getDstTransitions ----- " << std::endl;
 
     std::vector<std::chrono::system_clock::time_point> transitionsVect;
@@ -221,7 +213,6 @@ std::vector<std::chrono::system_clock::time_point> getDstTransitions(const std::
 
 
     auto initialTp = std::chrono::system_clock::time_point{ zone_ptr->get_info(utc_tp1).end };
-
 
     if(initialTp>utc_tp2)
         return transitionsVect;
@@ -271,5 +262,6 @@ int main(){
 
     return 0;
 }
+
 
 ```
