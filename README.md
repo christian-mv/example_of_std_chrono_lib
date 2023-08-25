@@ -1,4 +1,4 @@
-# example_of_std_chrono_lib
+# C++ chrono library examples.
 This is just a quick (and disorganised) set of examples on how to achieve useful operations with the std::chrono library in C++20. 
 
 
