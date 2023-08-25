@@ -1,9 +1,9 @@
 # example_of_std_chrono_lib
-This is just a quick example on how to use the std::chrono library in C++20. 
+This is just a quick (and disorganised) set of examples on how to achieve useful operations with the std::chrono library in C++20. 
 
 
 ```cpp
-// compile using: C++20 or later
+// compile using: C++20 or later.
 #include <iostream>
 #include <chrono>
 #include <format>
@@ -12,8 +12,6 @@ This is just a quick example on how to use the std::chrono library in C++20.
 /// shows how to print timestamp in UTC and in a specified time zone.
 void formatingInUtcAndDifferentTimeZone(long long msSinceUtcEpoch) {
     using namespace std::chrono;
-    //    using namespace std::literals;
-
     std::cout << "------ Demo: formatingInUtcAndDifferentTimeZone ----- " << std::endl;
 
     auto timePoint = system_clock::time_point{ milliseconds{ msSinceUtcEpoch } };
@@ -30,7 +28,6 @@ void formatingInUtcAndDifferentTimeZone(long long msSinceUtcEpoch) {
 /// Extracts information from date and time as UTC
 void extractingDateAndTimeInfo(long long msSinceUtcEpoch){
     using namespace std::chrono;
-    //    using namespace std::literals;
 
     std::cout << "------ Demo: extractingDateAndTimeInfo  ----- " << std::endl;
 
@@ -158,11 +155,15 @@ void printIanaDatabase(){
 }
 
 /// @brief Obtains information about this time zone at the time point tp
-/// @note this method assumes that ianaId is a valid id, otherwise undefined behaviour
 void printTimeZoneAtTimePoint(const std::chrono::system_clock::time_point &utc_tp, const std::string &ianaId){
 
-    // check tha the timezone id is valid
     std::cout << "------ Demo: printTimeZoneAtTimePoint ----- " << std::endl;
+
+    // check tha the timezone id is valid
+    if(!is_valid_iana_id(ianaId)){
+        std::cout<<"Invalid iana id: "<<ianaId<<std::endl;
+        return;
+    }
 
     auto zone_ptr = std::chrono::locate_zone(ianaId);
 
@@ -187,9 +188,9 @@ void printTimeZoneAtTimePoint(const std::chrono::system_clock::time_point &utc_t
 
 }
 
-/// Returns the utc time-points when there is a DST transition
+/// Returns the utc time-points when there is a DST transition between utc_tp1 and utc_tp2
 /// @note make sure that utc_tp1<=utc_tp2
-std::vector<std::chrono::system_clock::time_point> getDstTransitions(const std::chrono::system_clock::time_point &utc_tp1,
+std::vector<std::chrono::system_clock::time_point> dstTransitionsBetween2TimePoints(const std::chrono::system_clock::time_point &utc_tp1,
                                                                      const std::chrono::system_clock::time_point &utc_tp2,
                                                                      const std::string &ianaId)
 {
@@ -261,11 +262,10 @@ int main(){
 
     printTimeZoneAtTimePoint(timePoint, "Australia/Melbourne");
 
-    auto dstTranstionsVec = getDstTransitions(createTimePointsWithDateTimeParts(2022, 10, 1, 2, 30, 0, 0),
+    auto dstTranstionsVec = dstTransitionsBetween2TimePoints(createTimePointsWithDateTimeParts(2022, 10, 1, 2, 30, 0, 0),
                                               createTimePointsWithDateTimeParts(2023, 10, 1, 2, 30, 0, 0),
                                               "Australia/Melbourne");
 
     return 0;
 }
-
 ```
