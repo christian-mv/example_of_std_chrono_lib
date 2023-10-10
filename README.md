@@ -25,6 +25,8 @@ void formatingInUtcAndDifferentTimeZone(long long msSinceUtcEpoch) {
     std::cout << std::endl;
 }
 
+
+
 /// Extracts information from date and time as UTC
 void extractingDateAndTimeInfo(long long msSinceUtcEpoch){
     using namespace std::chrono;
@@ -100,7 +102,7 @@ void extractingDateAndTimeInfoToDifferentTimeZone(long long msSinceUtcEpoch, con
 
 }
 
-/// Shows how to create a time_point manually.
+/// Shows how to create a time_point manually. UTC time-zone is assumed
 std::chrono::system_clock::time_point createTimePointsWithDateTimeParts(int w_year, int w_month, int w_day,
                                                                         int w_hours, int w_minutes, int w_seconds, int w_milliseconds){
 
@@ -123,6 +125,58 @@ std::chrono::system_clock::time_point createTimePointsWithDateTimeParts(int w_ye
 
     return dateTime;
 }
+
+
+/// @brief Creates a `std::chrono::system_clock::time_point` with date, time, and time zone information provided as individual parts.
+/// @param[out] ok Set to `true` if the time_point is successfully created; otherwise, set to `false`.
+/// @param[out] errors A string to hold any error messages encountered during the function execution. Will append to any existing content.
+/// @return A `std::chrono::system_clock::time_point` representing the UTC time corresponding to the provided local date, time, and time zone.
+///         Returns a default-constructed `std::chrono::system_clock::time_point` in case of errors.
+/// @exception This function catches all exceptions internally, sets `ok` to `false` and appends the exception information to `errors`.
+std::chrono::system_clock::time_point createTimePointsWithDateTimeParts(
+    int w_year,
+    int w_month,
+    int w_day,
+    int w_hours,
+    int w_minutes,
+    int w_seconds,
+    int w_milliseconds,
+    const std::string &ianaIdTimeZone,
+    bool &ok,
+    std::string &errors) {
+
+    using namespace std::chrono;
+
+    ok = true; // Assume it's okay until proven otherwise
+    system_clock::time_point utcTimePoint; // Declare the time_point variable
+
+    try {
+        if (!is_valid_iana_id(ianaIdTimeZone)) {
+            errors += "Invalid IANA Time Zone ID: " + ianaIdTimeZone;
+            ok = false;
+            return system_clock::time_point{}; // Return a default-constructed time_point
+        }
+
+        auto zone_ptr = locate_zone(ianaIdTimeZone);
+        auto localTime =
+            local_days(year(w_year) / month(w_month) / day(w_day)) +
+            hours(w_hours) +
+            minutes(w_minutes) +
+            seconds(w_seconds) +
+            milliseconds(w_milliseconds);
+
+        zoned_time zt{zone_ptr, localTime};
+        utcTimePoint = zt.get_sys_time();
+
+    } catch (const std::exception& e) {
+        ok = false;
+        errors += e.what();
+        return system_clock::time_point{}; // Return a default-constructed time_point
+    }
+
+    return utcTimePoint;
+}
+
 
 /// extract the number of milliseconds since EPOCH from a given chrono time-point
 long long fromTimePointToMsSinceEpoch(const std::chrono::system_clock::time_point &tp){
@@ -191,8 +245,8 @@ void printTimeZoneAtTimePoint(const std::chrono::system_clock::time_point &utc_t
 /// Returns the utc time-points when there is a DST transition between utc_tp1 and utc_tp2
 /// @note make sure that utc_tp1<=utc_tp2
 std::vector<std::chrono::system_clock::time_point> dstTransitionsBetween2TimePoints(const std::chrono::system_clock::time_point &utc_tp1,
-                                                                     const std::chrono::system_clock::time_point &utc_tp2,
-                                                                     const std::string &ianaId)
+                                                                                    const std::chrono::system_clock::time_point &utc_tp2,
+                                                                                    const std::string &ianaId)
 {
     std::cout << "------ Demo: getDstTransitions ----- " << std::endl;
 
@@ -246,7 +300,19 @@ std::vector<std::chrono::system_clock::time_point> dstTransitionsBetween2TimePoi
 
 int main(){
 
-    auto timePoint = createTimePointsWithDateTimeParts(2023, 10, 1, 2, 30, 0, 10);
+    bool ok{false};
+    std::string errors;
+//    auto timePoint = createTimePointsWithDateTimeParts(2023, 10, 1, 2, 30, 0, 10, "Australia/Melbourne", ok, errors); // WRONG. this time-point is in a gap.
+
+    auto timePoint = createTimePointsWithDateTimeParts(2023, 10, 1, 3, 30, 0, 10, "Australia/Melbourne", ok, errors); // OK.
+
+    if(!ok){
+        std::cerr<<"Impossible to parse date and time.\n"<<errors<<std::endl;
+        return -1;
+    }
+
+    std::cout<<"timePoint: "<<timePoint<<std::endl;
+
     auto msSinceUtcEpoch = fromTimePointToMsSinceEpoch(timePoint); // timestamp given in UTC milliseconds since epoch
     auto timePoint_clone = fromMillisencondsSinceEpochToTimePoint(msSinceUtcEpoch); // convert back
 
@@ -258,14 +324,15 @@ int main(){
 
     extractingDateAndTimeInfoToDifferentTimeZone(msSinceUtcEpoch, "Australia/Melbourne");
 
-    //    printIanaDatabase(); // print the whole database
+//        printIanaDatabase(); // print the whole database
 
     printTimeZoneAtTimePoint(timePoint, "Australia/Melbourne");
 
     auto dstTranstionsVec = dstTransitionsBetween2TimePoints(createTimePointsWithDateTimeParts(2022, 10, 1, 2, 30, 0, 0),
-                                              createTimePointsWithDateTimeParts(2023, 10, 1, 2, 30, 0, 0),
-                                              "Australia/Melbourne");
+                                                             createTimePointsWithDateTimeParts(2023, 10, 1, 2, 30, 0, 0),
+                                                             "Australia/Melbourne");
 
     return 0;
 }
+
 ```
