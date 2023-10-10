@@ -8,6 +8,16 @@ This is just a quick (and disorganised) set of examples on how to achieve useful
 #include <chrono>
 #include <format>
 
+
+/// @note The range printed is not necessarily the same across all platforms or compilers.
+void printRangeOfTimePoints(){
+    std::cout << "------ Demo: printRangeOfTimePoints ----- " << std::endl;
+    std::cout<<"Time points range: [ "
+              <<std::chrono::system_clock::time_point::min()
+              <<" , "<<std::chrono::system_clock::time_point::max()<<"]\n"<<std::endl;
+}
+
+
 /// shows how to print timestamp in UTC and in a specified time zone.
 void formatingInUtcAndDifferentTimeZone(long long msSinceUtcEpoch) {
     using namespace std::chrono;
@@ -23,6 +33,8 @@ void formatingInUtcAndDifferentTimeZone(long long msSinceUtcEpoch) {
     std::cout << "as_perth: "<< as_perth << " | " << std::format("{:%X %Z}", as_perth) << " | " << as_perth.get_time_zone()->name() << std::endl;
     std::cout << std::endl;
 }
+
+
 
 /// Extracts information from date and time as UTC
 void extractingDateAndTimeInfo(long long msSinceUtcEpoch){
@@ -296,6 +308,8 @@ std::vector<std::chrono::system_clock::time_point> dstTransitionsBetween2TimePoi
 
 
 int main(){
+
+    printRangeOfTimePoints();
 
     bool ok{false};
     std::string errors;
