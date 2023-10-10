@@ -8,7 +8,6 @@ This is just a quick (and disorganised) set of examples on how to achieve useful
 #include <chrono>
 #include <format>
 
-
 /// shows how to print timestamp in UTC and in a specified time zone.
 void formatingInUtcAndDifferentTimeZone(long long msSinceUtcEpoch) {
     using namespace std::chrono;
@@ -24,8 +23,6 @@ void formatingInUtcAndDifferentTimeZone(long long msSinceUtcEpoch) {
     std::cout << "as_perth: "<< as_perth << " | " << std::format("{:%X %Z}", as_perth) << " | " << as_perth.get_time_zone()->name() << std::endl;
     std::cout << std::endl;
 }
-
-
 
 /// Extracts information from date and time as UTC
 void extractingDateAndTimeInfo(long long msSinceUtcEpoch){
