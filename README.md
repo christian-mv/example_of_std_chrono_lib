@@ -306,6 +306,33 @@ std::vector<std::chrono::system_clock::time_point> dstTransitionsBetween2TimePoi
     return transitionsVect;
 }
 
+// Prints the day of the week.
+std::string getDayOfWeek(const std::chrono::system_clock::time_point &timePoint) {
+    using namespace std::chrono;
+
+    // Extract the date part
+    auto dp = floor<days>(timePoint);
+    year_month_day ymd{dp};
+
+    // Get the weekday
+    weekday wd{dp};
+
+    // Convert weekday to a string
+    std::string dayOfWeek;
+    switch (wd.c_encoding()) {
+    case 0: return "Monday";
+    case 1: return "Tuesday";
+    case 2: return "Wednesday";
+    case 3: return "Thursday";
+    case 4: return "Friday";
+    case 5: return "Saturday";
+    case 6: return "Sunday";
+    }
+
+   return "Unknown";
+}
+
+
 
 int main(){
 
@@ -313,7 +340,7 @@ int main(){
 
     bool ok{false};
     std::string errors;
-//    auto timePoint = createTimePointsWithDateTimeParts(2023, 10, 1, 2, 30, 0, 10, "Australia/Melbourne", ok, errors); // WRONG. this time-point is in a gap.
+    //    auto timePoint = createTimePointsWithDateTimeParts(2023, 10, 1, 2, 30, 0, 10, "Australia/Melbourne", ok, errors); // WRONG. this time-point is in a gap.
 
     auto timePoint = createTimePointsWithDateTimeParts(2023, 10, 1, 3, 30, 0, 10, "Australia/Melbourne", ok, errors); // OK.
 
@@ -323,6 +350,8 @@ int main(){
     }
 
     std::cout<<"timePoint: "<<timePoint<<std::endl;
+    std::cout<<"dayOfWeek: "<<getDayOfWeek(timePoint)<<std::endl;
+
 
     auto msSinceUtcEpoch = fromTimePointToMsSinceEpoch(timePoint); // timestamp given in UTC milliseconds since epoch
     auto timePoint_clone = fromMillisencondsSinceEpochToTimePoint(msSinceUtcEpoch); // convert back
@@ -335,7 +364,7 @@ int main(){
 
     extractingDateAndTimeInfoToDifferentTimeZone(msSinceUtcEpoch, "Australia/Melbourne");
 
-//        printIanaDatabase(); // print the whole database
+    //        printIanaDatabase(); // print the whole database
 
     printTimeZoneAtTimePoint(timePoint, "Australia/Melbourne");
 
